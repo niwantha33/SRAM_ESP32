@@ -11,7 +11,7 @@ SRAM2 = 0x3FFA_E000   - 0x3FFD_FFFF  200KB
 void app_main()
 {
 
-    volatile uint16_t *sram1_sec = (uint16_t *)0x3FFE0000; /* created Explicity */
+    volatile uint16_t *sram1_sec = (uint16_t *)0x3FFE0000; /*  Explicit */
 
     int ***multiArray = (int ***)0x3FFE00FF;
 
