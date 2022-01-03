@@ -2,6 +2,7 @@
 #include "stdint.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "driver/gpio.h"
 
 /*
 Manually utilizing Embedded Memory which in Internal SRAM's
@@ -15,6 +16,16 @@ int returnPtr(int x, int y);
 
 void app_main()
 {
+
+    gpio_config_t builtInLed = {};
+    builtInLed.intr_type =GPIO_INTR_DISABLE;
+    builtInLed.mode = GPIO_MODE_OUTPUT;
+    builtInLed.pin_bit_mask = 1UL << GPIO_NUM_0;
+    builtInLed.pull_down_en = 0;
+    builtInLed.pull_up_en = 0;
+
+    gpio_config(&builtInLed);
+
 
     volatile uint16_t *sram1_sec = (uint16_t *)0x3FFE0000; /*  Explicit */
 
@@ -44,6 +55,7 @@ void app_main()
         *sram1_sec = cnt;
         multiArray[1][1][1] = cnt;
         cnt++;
+        gpio_set_level(GPIO_NUM_0, cnt%2);
         printf("%p [%d] {multiArray[%d]} [ptr Func_t :[%d]]\n", sram1_sec, *sram1_sec, multiArray[1][1][1], addFunction(cnt, cnt));
         vTaskDelay(1000 / portTICK_RATE_MS);
     }
