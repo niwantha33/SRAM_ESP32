@@ -1,6 +1,7 @@
 #include "stdio.h"
 #include "stdint.h"
-#include "stdlib.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 /*
 Manually utilizing Embedded Memory which in Internal SRAM's
@@ -37,6 +38,7 @@ void app_main()
         *sram1_sec = cnt;
         multiArray[1][1][1] = cnt;
         cnt++;
-        printf("Variable cnt MEM : %p [%d] {multiArray[%d]}\n", sram1_sec, *sram1_sec, multiArray[1][1][1]);
+        printf("%p [%d] {multiArray[%d]}\n", sram1_sec, *sram1_sec, multiArray[1][1][1]);
+       vTaskDelay(1000 / portTICK_RATE_MS);
     }
 }
