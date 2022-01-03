@@ -9,6 +9,10 @@ SRAM1 = 0x3FFE_0000   - 0x3FFF_FFFF  128KB
 SRAM2 = 0x3FFA_E000   - 0x3FFD_FFFF  200KB
 */
 
+typedef int (*func_t)(int, int);
+
+int returnPtr(int x, int y);
+
 void app_main()
 {
 
@@ -33,12 +37,23 @@ void app_main()
 
     uint16_t cnt = 0;
 
+    func_t addFunction = &returnPtr;
+
     for (;;)
     {
         *sram1_sec = cnt;
         multiArray[1][1][1] = cnt;
         cnt++;
-        printf("%p [%d] {multiArray[%d]}\n", sram1_sec, *sram1_sec, multiArray[1][1][1]);
-       vTaskDelay(1000 / portTICK_RATE_MS);
+        printf("%p [%d] {multiArray[%d]} [ptr Func_t :[%d]]\n", sram1_sec, *sram1_sec, multiArray[1][1][1], addFunction(cnt, cnt));
+        vTaskDelay(1000 / portTICK_RATE_MS);
     }
+}
+
+int returnPtr(int x, int y)
+{
+
+    int ptr;
+    ptr = x + y;
+
+    return ptr;
 }
