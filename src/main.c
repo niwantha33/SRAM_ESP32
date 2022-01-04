@@ -4,6 +4,13 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 
+#define OUTPUT  0x1
+#define INPUT   0x0
+#define INPUT_OUTPUT    0x2
+
+
+
+
 /*
 Manually utilizing Embedded Memory which in Internal SRAM's
 SRAM1 = 0x3FFE_0000   - 0x3FFF_FFFF  128KB
@@ -15,12 +22,14 @@ typedef int (*func_t)(int, int);
 int returnPtr(int x, int y);
 
 /* Interface to PIN_0 */
-__attribute__((always_inline)) static inline void DIO_CONFIG(int PINNUM, int OUTPUT)
+__attribute__((always_inline)) static inline void pinMode(int PINNUM, int Mode)
 {
     gpio_config_t builtInLed = {};
     builtInLed.intr_type = GPIO_INTR_DISABLE;
-    builtInLed.mode = GPIO_MODE_OUTPUT;
-    builtInLed.pin_bit_mask = 1UL << PINNUM;
+    if (Mode == OUTPUT)  builtInLed.mode = GPIO_MODE_OUTPUT;
+    if (Mode == INPUT)  builtInLed.mode = GPIO_MODE_INPUT;
+    if (Mode == INPUT_OUTPUT)  builtInLed.mode = GPIO_MODE_INPUT_OUTPUT;
+    builtInLed.pin_bit_mask = BIT(PINNUM);
     builtInLed.pull_down_en = 0;
     builtInLed.pull_up_en = 0;
 
@@ -58,7 +67,7 @@ void app_main()
 
         multiArray[1][1][1] = cnt;
 
-        DIO_CONFIG(0, 1);
+        pinMode(0, INPUT_OUTPUT);
 
         gpio_set_level(GPIO_NUM_0, cnt % 2);
 
