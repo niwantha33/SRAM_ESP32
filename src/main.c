@@ -14,25 +14,27 @@ typedef int (*func_t)(int, int);
 
 int returnPtr(int x, int y);
 
-void app_main()
+/* Interface to PIN_0 */
+__attribute__((always_inline)) static inline void DIO_CONFIG(int PINNUM, int OUTPUT)
 {
-
     gpio_config_t builtInLed = {};
-    builtInLed.intr_type =GPIO_INTR_DISABLE;
+    builtInLed.intr_type = GPIO_INTR_DISABLE;
     builtInLed.mode = GPIO_MODE_OUTPUT;
-    builtInLed.pin_bit_mask = 1UL << GPIO_NUM_0;
+    builtInLed.pin_bit_mask = 1UL << PINNUM;
     builtInLed.pull_down_en = 0;
     builtInLed.pull_up_en = 0;
 
     gpio_config(&builtInLed);
-
+}
+void app_main()
+{
 
     volatile uint16_t *sram1_sec = (uint16_t *)0x3FFE0000; /*  Explicit */
 
     int ***multiArray = (int ***)0x3FFE00FF;
 
     /* created ptrtab[x][y][z] */
-    /* multiArray[5][50][25] */
+    /* multiArray[5][5][5] */
     multiArray = (int ***)malloc(5 * sizeof(uint16_t **)); /* ptrtab[] */
 
     uint8_t i = 0;
@@ -53,10 +55,17 @@ void app_main()
     for (;;)
     {
         *sram1_sec = cnt;
+
         multiArray[1][1][1] = cnt;
-        cnt++;
-        gpio_set_level(GPIO_NUM_0, cnt%2);
+
+        DIO_CONFIG(0, 1);
+
+        gpio_set_level(GPIO_NUM_0, cnt % 2);
+
         printf("%p [%d] {multiArray[%d]} [ptr Func_t :[%d]]\n", sram1_sec, *sram1_sec, multiArray[1][1][1], addFunction(cnt, cnt));
+       
+        cnt++;
+
         vTaskDelay(1000 / portTICK_RATE_MS);
     }
 }
